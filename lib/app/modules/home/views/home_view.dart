@@ -4,21 +4,43 @@ import 'package:get/get.dart';
 
 import '../controllers/home_controller.dart';
 
-class HomeView extends GetView<HomeController> {
-  const HomeView({Key? key}) : super(key: key);
+import 'package:flutter/material.dart';
+import 'package:rxdart/rxdart.dart';
+
+class HomeView extends StatefulWidget {
+  @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  final BehaviorSubject<int> _counterSubject = BehaviorSubject<int>.seeded(0);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HomeView'),
-        centerTitle: true,
+        title: Text('Reactive'),
       ),
-      body: const Center(
-        child: Text(
-          'HomeView is working',
-          style: TextStyle(fontSize: 20),
+      body: Center(
+        child: StreamBuilder<int>(
+          stream: _counterSubject.stream,
+          builder: (context, snapshot) {
+            return Text('Counter: ${snapshot.data}');
+          },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _counterSubject.add(_counterSubject.value + 1);
+        },
+        child: Icon(Icons.add),
+      ),
     );
+  }
+
+  @override
+  void dispose() {
+    _counterSubject.close();
+    super.dispose();
   }
 }
